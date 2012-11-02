@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+
+<vbox xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <setting pref="network.cookie.cookieBehavior" type="integer" title="Cookie behavior. (0=accept all, 1=same site only, 2=deny all)" />
+  <setting pref="network.cookie.lifetimePolicy" type="integer" title="Keep until (0=they expire, 1=ask me everytime, 2=close browser, 3=set by the following)" />
+  <setting pref="network.cookie.lifetime.days" type="integer" title="Cookie lifetime (days)" />
+</vbox>
