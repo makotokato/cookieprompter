@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 const Cc = Components.classes;
 const Ci = Components.interfaces;
 const Cr = Components.results;
@@ -10,22 +14,42 @@ function CookiePromptService() {
 }
 
 CookiePromptService.prototype = {
-  cookieDialog: function (aParent, aCookie, aHostname, aCookieFromHost,
+  cookieDialog: function (aParent, aCookie, aHostname, aCookiesFromHost,
                           aChangingCookie, aRememberDecision) {
     aRememberDecision.value = false;
+
+    let bodytext;
+
+    if (aChangingCookie) {
+      bodytext = "The site " + aHostname + "wants to modify an existing cookie";
+    } else if (aCookiesFromHost > 1) {
+      bodytext = "The site " + aHostname + "wants to set another cookie";
+    } else if (aCookiesFromHost == 1) {
+      bodytext = "The site " + aHostname + "wants to set a second cookie";
+    } else {
+      bodytext = "The site " + aHostname + "wants to set a cookie";
+    }
+
     let selectStrings = ["Deny",
+                         "Deny (Remember Decision)",
                          "Allow",
-                         "Allow for Session"];
+                         "Allow (Remember Decision)",
+                         "Allow for Session",
+                         "Allow for Session (Remember Decision)"];
     let state = {};
 
     if (Services.prompt.select(aParent,
                                "Confirm settings cookie",
-                               "",
+                               bodytext,
                                selectStrings.length,
                                selectStrings,
                                state)) {
-      return state.value;
+      if (state.value % 2 == 1) {
+          aRememberDecision.value = true;
+      }
+      return state.value / 2;
     }
+
     return Ci.nsICookiePromptService.DENY_COOKIE;
   },
 
@@ -73,9 +97,6 @@ function startup(aData, aReason)
 
 function shutdown(aData, aReason)
 {
-  if (aReason == APP_SHUTDOWN)
-    return;
-
   UnregisterComponents();
 }
 
